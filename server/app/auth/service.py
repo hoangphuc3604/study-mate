@@ -52,11 +52,11 @@ class UserService:
         password = user_login_dto.get("password")
 
         if not email or not password:
-            raise ValueError("Email and password are required")
+            raise ValueError("Vui lòng nhập email và mật khẩu")
 
         user = User.query.filter_by(email=email).first()
         if not user or not user.check_password(password):
-            raise ValueError("Invalid email or password")
+            raise ValueError("Mật khẩu hoặc email không đúng")
 
         token = self.auth_service.generate_token(user.id)
         return user, token
@@ -73,7 +73,7 @@ class UserService:
         """
         existing_user = User.query.filter_by(email=user_register_dto["email"]).first()
         if existing_user:
-            raise ValueError("User already exists")
+            raise ValueError("Email đã tồn tại")
         
         new_user = User(
             email=user_register_dto["email"],
@@ -84,7 +84,7 @@ class UserService:
         db.session.add(new_user)
         db.session.commit()
         
-        return {"id": new_user.id}, "User registered successfully"
+        return {"id": new_user.id}, "Đăng ký thành công"
 
         
 
