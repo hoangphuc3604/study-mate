@@ -1,1 +1,87 @@
-venv
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+
+# Flask instance folder (contains config or uploaded files)
+instance/
+
+# Flask cache, coverage, logs
+*.log
+*.pot
+*.pyc
+*.pyo
+.coverage
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Pytest cache
+.pytest_cache/
+
+# pipenv / poetry
+Pipfile.lock
+poetry.lock
+
+# mypy, pylint, pyright
+.mypy_cache/
+.dmypy.json
+.pytype/
+.pyright/
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Database files (optional)
+*.sqlite3
+*.db
+
+# Environment variables
+.env
+.env.*
+
+# Compiled files and temp
+dist/
+build/
+*.egg-info/
+*.egg/
+.eggs/
+*.manifest
+
+# Celery worker logs (if using Celery)
+celerybeat-schedule
+celerybeat.pid
+
+# Docker
+*.pid
+*.tar
+*.bak
+docker-compose.override.yml
+
+# Unit test result
+test-results/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Node (if using frontend inside project)
+node_modules/
