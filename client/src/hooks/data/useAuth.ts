@@ -33,7 +33,7 @@ const useAuth = () => {
         onSuccess: (data) => {
             setUser(data.user);
             localStorage.setItem("user", JSON.stringify(data.user));
-            localStorage.setItem("access_token", data.access_token);
+            localStorage.setItem("token", data.access_token);
             toast({
                 title: "Đăng nhập thành công",
                 description: "Chào mừng bạn trở lại!",
