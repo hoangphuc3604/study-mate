@@ -1,7 +1,7 @@
 import logging
 from flask_cors import CORS
 from flask import Flask
-from app.extentions import bcrypt, jwt, db, migrate
+from app.extentions import bcrypt, jwt, db, migrate, bcrypt
 from app.config import Config
 
 # Set up logging
@@ -22,6 +22,7 @@ def create_app():
     jwt.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
+    bcrypt.init_app(app)
 
     # Register blueprints
     register_blueprints(app)
@@ -58,7 +59,11 @@ def register_blueprints(app):
         app: Flask application instance
     """
 
-    blue_prints = []
+    from app.auth.route import user_bp
+
+    blue_prints = [
+        (user_bp, '/api/auth'),
+    ]
 
     for blueprint, url_prefix in blue_prints:
         app.register_blueprint(blueprint, url_prefix=url_prefix)
