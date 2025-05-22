@@ -1,6 +1,9 @@
-
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,171 +12,117 @@ import { Label } from "@/components/ui/label";
 import { UserPlus } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { useToast } from "@/hooks/use-toast";
+import { LoadingSpinner } from "@/components/Loading";
+import useAuth from "@/hooks/data/useAuth";
+
+const registerSchema = z
+  .object({
+    fullName: z.string().min(1, "Họ và tên là bắt buộc"),
+    email: z.string().min(1, "Email là bắt buộc").email("Email không hợp lệ"),
+    password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
+    confirmPassword: z.string().min(1, "Xác nhận mật khẩu là bắt buộc"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Mật khẩu xác nhận không khớp",
+  });
+
+type RegisterFormValues = z.infer<typeof registerSchema>;
 
 const RegisterPage = () => {
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const { toast } = useToast();
+  const { signUp, isSigningUp } = useAuth();
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Basic validation
-    if (!fullName || !email || !password || !confirmPassword) {
-      toast({
-        title: "Thiếu thông tin",
-        description: "Vui lòng điền đầy đủ thông tin đăng ký",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (password !== confirmPassword) {
-      toast({
-        title: "Mật khẩu không khớp",
-        description: "Mật khẩu và xác nhận mật khẩu không giống nhau",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Password strength check
-    if (password.length < 6) {
-      toast({
-        title: "Mật khẩu yếu",
-        description: "Mật khẩu phải có ít nhất 6 ký tự",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    setIsLoading(true);
-    
-    try {
-      // Simulate registration process
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // For demo purposes, we'll just redirect to the login page
-      toast({
-        title: "Đăng ký thành công",
-        description: "Tài khoản của bạn đã được tạo! Vui lòng đăng nhập.",
-      });
-      
-      navigate("/login");
-    } catch (error) {
-      console.error("Registration error:", error);
-      toast({
-        title: "Đăng ký thất bại",
-        description: "Có lỗi xảy ra khi đăng ký. Vui lòng thử lại sau.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerSchema),
+  });
+
+  const onSubmit = async (data: RegisterFormValues) => {
+    signUp({
+      email: data.email,
+      password: data.password,
+      fullname: data.fullName,
+    });
   };
 
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar isLoggedIn={false} />
-      
+
       <main className="flex-1 container mx-auto px-4 py-20">
         <div className="max-w-md mx-auto">
           <Card className="shadow-md">
             <CardHeader>
               <CardTitle className="text-2xl">Đăng ký</CardTitle>
-              <CardDescription>
-                Tạo tài khoản StudyMate mới
-              </CardDescription>
+              <CardDescription>Tạo tài khoản StudyMate mới</CardDescription>
             </CardHeader>
-            
+
             <CardContent>
-              <form onSubmit={handleRegister}>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Họ và tên</Label>
-                    <Input
-                      id="fullName"
-                      placeholder="Nguyễn Văn A"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="email@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Mật khẩu</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="••••••••"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <Button
-                    type="submit"
-                    className="w-full bg-studymate-400 hover:bg-studymate-500"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center">
-                        <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        <span>Đang đăng ký...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center">
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        <span>Đăng ký</span>
-                      </div>
-                    )}
-                  </Button>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Họ và tên</Label>
+                  <Input id="fullName" {...register("fullName")} />
+                  {errors.fullName && (
+                    <p className="text-sm text-red-500">{errors.fullName.message}</p>
+                  )}
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input id="email" type="email" {...register("email")} />
+                  {errors.email && (
+                    <p className="text-sm text-red-500">{errors.email.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">Mật khẩu</Label>
+                  <Input id="password" type="password" {...register("password")} />
+                  {errors.password && (
+                    <p className="text-sm text-red-500">{errors.password.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Xác nhận mật khẩu</Label>
+                  <Input id="confirmPassword" type="password" {...register("confirmPassword")} />
+                  {errors.confirmPassword && (
+                    <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
+                  )}
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full bg-studymate-400 hover:bg-studymate-500"
+                  disabled={isSigningUp}
+                >
+                  {isSigningUp ? (
+                    <div className="flex items-center">
+                      <LoadingSpinner />
+                    </div>
+                  ) : (
+                    <div className="flex items-center">
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      <span>Đăng ký</span>
+                    </div>
+                  )}
+                </Button>
               </form>
-              
+
               <div className="relative my-6">
                 <Separator />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="bg-background px-2 text-muted-foreground text-sm">
-                    Hoặc
-                  </span>
+                  <span className="bg-background px-2 text-muted-foreground text-sm">Hoặc</span>
                 </div>
               </div>
-              
+
               <Button variant="outline" className="w-full">
-                <svg 
-                  viewBox="0 0 24 24" 
-                  className="h-5 w-5 mr-2" 
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-5 w-5 mr-2"
                   aria-hidden="true"
                   fill="currentColor"
                 >
@@ -182,7 +131,7 @@ const RegisterPage = () => {
                 Đăng ký với Google
               </Button>
             </CardContent>
-            
+
             <CardFooter className="flex justify-center">
               <p className="text-sm text-muted-foreground">
                 Đã có tài khoản?{" "}
@@ -194,7 +143,7 @@ const RegisterPage = () => {
           </Card>
         </div>
       </main>
-      
+
       <Footer />
     </div>
   );

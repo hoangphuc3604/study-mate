@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -10,26 +9,34 @@ import { LogIn } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useToast } from "@/hooks/use-toast";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import useAuth from "@/hooks/data/useAuth";
+import { LoadingSpinner } from "@/components/Loading";
+
+const loginSchema = z.object({
+  email: z.string().min(1, "Email là bắt buộc").email("Email không hợp lệ"),
+  password: z.string().min(1, "Mật khẩu là bắt buộc"),
+});
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const { signIn, isSigningIn } = useAuth();
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !password) {
-      toast({
-        title: "Thiếu thông tin",
-        description: "Vui lòng điền đầy đủ email và mật khẩu",
-        variant: "destructive",
-      });
-      return;
-    }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+  });
 
-
+  const onSubmit = async (data: LoginFormValues) => {
+    signIn({
+      email: data.email,
+      password: data.password,
+    })
   };
 
   return (
@@ -47,7 +54,7 @@ const LoginPage = () => {
             </CardHeader>
             
             <CardContent>
-              <form onSubmit={handleLogin}>
+              <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
@@ -55,10 +62,12 @@ const LoginPage = () => {
                       id="email"
                       type="email"
                       placeholder="email@example.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
+                      {...register("email")}
+                      disabled={isSigningIn}
                     />
+                    {errors.email && (
+                      <p className="text-sm text-red-500">{errors.email.message}</p>
+                    )}
                   </div>
                   
                   <div className="space-y-2">
@@ -75,21 +84,22 @@ const LoginPage = () => {
                       id="password"
                       type="password"
                       placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
+                      {...register("password")}
+                      disabled={isSigningIn}
                     />
+                    {errors.password && (
+                      <p className="text-sm text-red-500">{errors.password.message}</p>
+                    )}
                   </div>
                   
                   <Button
                     type="submit"
                     className="w-full bg-studymate-400 hover:bg-studymate-500"
-                    disabled={isLoading}
+                    disabled={isSigningIn}
                   >
-                    {isLoading ? (
+                    {isSigningIn ? (
                       <div className="flex items-center">
-                        <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
-                        <span>Đang đăng nhập...</span>
+                        <LoadingSpinner />
                       </div>
                     ) : (
                       <div className="flex items-center">
