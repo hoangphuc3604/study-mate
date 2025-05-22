@@ -24,7 +24,7 @@ class AuthService:
             str: The generated JWT token.
         """
         expires = datetime.timedelta(days=1)
-        access_token = create_access_token(identity=user_id, expires_delta=expires)
+        access_token = create_access_token(identity=str(user_id), expires_delta=expires)
         return access_token
 
 class UserService:
@@ -61,7 +61,7 @@ class UserService:
         token = self.auth_service.generate_token(user.id)
         return user, token
 
-    def register(self, user_register_dto: dict) -> Tuple[int, str]:
+    def register(self, user_register_dto: dict) -> int:
         """
         Register a new user.
         
@@ -69,7 +69,7 @@ class UserService:
             user_register_dto (UserRegisterDTO): The registration details of the user.
         
         Returns:
-            Tuple[dict, str]: A tuple containing the user ID and a success message.
+            int: The ID of the newly registered user.
         """
         existing_user = User.query.filter_by(email=user_register_dto["email"]).first()
         if existing_user:
@@ -83,8 +83,5 @@ class UserService:
 
         db.session.add(new_user)
         db.session.commit()
-        
-        return {"id": new_user.id}, "Đăng ký thành công"
 
-        
-
+        return new_user.id

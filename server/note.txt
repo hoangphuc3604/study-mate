@@ -4,3 +4,16 @@ email
 password
 created_at
 updated_at 
+
+Conversation:
+id
+title
+last_message_id
+
+Message:
+id
+content
+date
+time
+conversation_id
+type: enum["bot", "user"]

@@ -5,6 +5,8 @@ from app.auth.dto import UserLoginDTO, UserRegisterDTO
 class UserController:
     def __init__(self):
         self.service = UserService()
+        self.login_dto = UserLoginDTO()
+        self.register_dto = UserRegisterDTO()
         self.user_bp = Blueprint('user_bp', __name__)
 
         self._register_routes()
@@ -17,7 +19,7 @@ class UserController:
         """Login route handler."""
         try:
             data = request.json
-            dto = UserLoginDTO().load(data)
+            dto = self.login_dto.load(data)
 
             user, token = self.service.login(dto)
             return jsonify({"user": user.to_dict(), "access_token": token}), 200
@@ -28,10 +30,10 @@ class UserController:
         """Register route handler."""
         try:
             data = request.json
-            dto = UserRegisterDTO().load(data)
+            dto = self.register_dto.load(data)
 
-            user_id, message = self.service.register(dto)
-            return jsonify({"user_id": user_id, "message": message}), 201
+            user_id = self.service.register(dto)
+            return jsonify({"user_id": user_id}), 201
         except Exception as e:
             return jsonify({"error": str(e)}), 400
 
