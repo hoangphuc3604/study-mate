@@ -11,6 +11,8 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
+    conversations = db.relationship('Conversation', backref='user', lazy=True)
+
     def __repr__(self):
         return f'<User {self.fullname}>'
     

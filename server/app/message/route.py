@@ -5,6 +5,7 @@ from app.message.dto import MessageCreateDTO
 class MessageController:
     def __init__(self):
         self.service = MessageService()
+        self.message_create_dto = MessageCreateDTO()
         self.message_bp = Blueprint('message_bp', __name__)
 
         self._register_routes()
@@ -15,7 +16,7 @@ class MessageController:
     def create_message(self):
         try:
             data = request.json
-            dto = MessageCreateDTO().load(data)
+            dto = self.message_create_dto.load(data)
 
             content = dto.get('content')
             conversation_id = dto.get('conversation_id')

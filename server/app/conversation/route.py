@@ -6,6 +6,7 @@ from app.conversation.dto import ConversationCreateDTO
 class ConversationController:
     def __init__(self):
         self.service = ConversationService()
+        self.conversation_create_dto = ConversationCreateDTO()
         self.conversation_bp = Blueprint('conversation_bp', __name__)
         self._register_routes()
 
@@ -16,8 +17,8 @@ class ConversationController:
     def create_conversation(self):
         try:
             data = request.json
-            dto = ConversationCreateDTO().load(data)
-            
+            dto = self.conversation_create_dto.load(data)
+
             title = dto.get('title')
             user_id = get_jwt_identity()
 

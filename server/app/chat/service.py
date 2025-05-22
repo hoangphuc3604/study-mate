@@ -56,7 +56,8 @@ class ChatService:
         self.message_service = MessageService()
         self.conversation_service = ConversationService()
 
-    def handle_user_message(self, conversation_id, message):
+    def handle_user_message(self, conversation_id: int, message: str):
+        """Handle user message and generate a response."""
         message_res = self.message_service.create_message(message, conversation_id, USER_TYPE)
         self.vector_service.add_message(conversation_id, USER_TYPE, message)
         self.conversation_service.update_last_message_id(conversation_id, message_res.to_dict()["id"])
