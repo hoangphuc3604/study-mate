@@ -60,9 +60,15 @@ def register_blueprints(app):
     """
 
     from app.auth.route import user_bp
+    from app.conversation.route import conversation_bp
+    from app.message.route import message_bp
+    from app.chat.route import chat_bp
 
     blue_prints = [
         (user_bp, '/api/auth'),
+        (conversation_bp, '/api/conversation'),
+        (message_bp, '/api/message'),
+        (chat_bp, '/api/chat'),
     ]
 
     for blueprint, url_prefix in blue_prints:
