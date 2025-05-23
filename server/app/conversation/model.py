@@ -1,11 +1,16 @@
 from app import db
+from datetime import datetime, timedelta, timezone
 
 class Conversation(db.Model):
     __tablename__ = 'conversations'
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
-    last_message_id = db.Column(db.Integer, db.ForeignKey('messages.id'), nullable=True)
+    preview = db.Column(db.String(), nullable=True)
+    date = db.Column(
+        db.DateTime(timezone=False),
+        default=lambda: datetime.now(timezone(timedelta(hours=7))).replace(tzinfo=None)
+    )
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
 
     messages = db.relationship('Message', backref='conversation', lazy=True, foreign_keys='Message.conversation_id')
@@ -17,6 +22,6 @@ class Conversation(db.Model):
         return {
             'id': self.id,
             'title': self.title,
-            'last_message_id': self.last_message_id,
-            'user_id': self.user_id,
+            'preview': self.preview,
+            'date': self.date.isoformat(),
         }

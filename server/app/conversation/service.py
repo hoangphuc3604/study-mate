@@ -44,14 +44,15 @@ class ConversationService:
         db.session.commit()
         return conversation
 
-    def update_last_message_id(self, conversation_id: int, message_id: int):
+    def update_preview(self, conversation_id: int, preview: str):
+        """Update the preview of a conversation."""
         conversation = Conversation.query.get(conversation_id)
         if conversation:
-            conversation.last_message_id = message_id
+            conversation.preview = preview
             db.session.commit()
             return True
         else:
-            raise ValueError("Conversation not found")
+            return False
 
     def get_messages(self, conversation_id: int):
         conversation = Conversation.query.get(conversation_id)
@@ -59,3 +60,6 @@ class ConversationService:
             return conversation.messages
         else:
             return []
+
+    def get_conversations(self, user_id: int):
+        return Conversation.query.filter_by(user_id=user_id).all()

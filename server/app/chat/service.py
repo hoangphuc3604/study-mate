@@ -52,9 +52,9 @@ class ChatService:
 
     def handle_user_message(self, conversation_id: int, message: str):
         """Handle user message and generate a response."""
-        message_res = self.message_service.create_message(message, conversation_id, USER_TYPE)
+        self.message_service.create_message(message, conversation_id, USER_TYPE)
         self.vector_service.add_message(conversation_id, USER_TYPE, message)
-        self.conversation_service.update_last_message_id(conversation_id, message_res.to_dict()["id"])
+        self.conversation_service.update_preview(conversation_id, message)
 
         context_list = self.vector_service.get_conversation_context(conversation_id)
         context = "\n".join(context_list)
