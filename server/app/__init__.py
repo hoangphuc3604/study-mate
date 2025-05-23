@@ -12,7 +12,7 @@ def create_app():
     app = Flask(__name__)
 
     # Enable CORS for all domains
-    CORS(app)
+    CORS(app, supports_credentials=True)
 
     # Load configuration
     app.config.from_object(Config)
