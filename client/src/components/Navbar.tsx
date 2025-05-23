@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, History, User, LogIn, UserPlus, Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useConversation } from "@/hooks/data/useConversation";
 
 interface NavbarProps {
   isLoggedIn: boolean;
@@ -12,9 +12,14 @@ interface NavbarProps {
 const Navbar = ({ isLoggedIn = false }: NavbarProps) => {
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { setConversation } = useConversation();
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const handleNewChat = () => {
+    setConversation(undefined);
   };
 
   return (
@@ -52,6 +57,12 @@ const Navbar = ({ isLoggedIn = false }: NavbarProps) => {
                     <Link to="/history">
                       <History className="mr-2 h-4 w-4" />
                       Lịch sử
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" asChild onClick={handleNewChat}>
+                    <Link to="/chat">
+                      <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M12 4v16m0 0H3"/></svg>
+                      Đoạn chat mới
                     </Link>
                   </Button>
                   <Button variant="ghost" asChild>
@@ -101,6 +112,12 @@ const Navbar = ({ isLoggedIn = false }: NavbarProps) => {
                     <Link to="/history">
                       <History className="mr-2 h-4 w-4" />
                       Lịch sử
+                    </Link>
+                  </Button>
+                  <Button variant="ghost" className="justify-start" asChild>
+                    <Link to="/chat">
+                      <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M12 4v16m0 0H3"/></svg>
+                      Đoạn chat mới
                     </Link>
                   </Button>
                   <Button variant="ghost" className="justify-start" asChild>

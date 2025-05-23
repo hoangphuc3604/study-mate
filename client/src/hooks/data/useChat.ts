@@ -17,11 +17,12 @@ const useChat = ({conversation_id}: {conversation_id: number}) => {
         refetch: reload,
         error: fetchMessagesError,
     } = useQuery({
-        queryKey: ["load_messages"],
+        queryKey: ["load_messages", conversation_id],
         queryFn: async () => {
             const response = await axiosInstance.get(`/conversation/${conversation_id}`);
             return response.data ?? ([] as Message[]);
         },
+        enabled: !!conversation_id,
     });
 
     const {

@@ -5,13 +5,17 @@ import { Send } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import useChat from "@/hooks/data/useChat";
+import { useConversation } from "@/hooks/data/useConversation";
+import { formatTimestamp } from "@/helpers/formatTime";
 
 const ChatPage = () => {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const { sendMessage, isSendingMessage, messages } = useChat({ conversation_id: 3 });
 
+  const { createConversationAsync, conversation } = useConversation();
+  const { sendMessage, isSendingMessage, messages } = useChat({ conversation_id: conversation?.id || 0 });
+  
   const scrollToBottom = () => {
     const container = messagesContainerRef.current;
     if (container) {
@@ -28,6 +32,10 @@ const ChatPage = () => {
     
     if (!input.trim()) return;
 
+    if (!conversation?.id) {
+      await createConversationAsync({first_message: input.trim()});
+    }
+
     sendMessage({ content: input.trim() });
     setInput("");
   };
@@ -39,16 +47,17 @@ const ChatPage = () => {
     }
   };
 
-  const formatTimestamp = (date: string) => {
-    return new Date(date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar isLoggedIn={true} />
-      
       <main className="flex-1 container mx-auto px-4 pt-20 pb-4">
         <div className="flex flex-col h-[80vh] max-w-4xl mx-auto border rounded-xl shadow-sm overflow-hidden">
+          {/* Title */}
+          <div className="px-4 py-3 border-b bg-background/80">
+            <h2 className="text-lg font-semibold truncate">
+              {conversation?.title || "Cuộc trò chuyện mới"}
+            </h2>
+          </div>
           {/* Chat messages */}
           <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 bg-secondary/20">
             <div className="space-y-6">

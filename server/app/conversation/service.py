@@ -58,4 +58,4 @@ class ConversationService:
         if conversation:
             return conversation.messages
         else:
-            raise ValueError("Conversation not found")
+            return []
