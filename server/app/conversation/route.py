@@ -21,9 +21,10 @@ class ConversationController:
             dto = self.conversation_create_dto.load(data)
 
             title = dto.get('title')
+            first_message = dto.get('first_message')
             user_id = get_jwt_identity()
 
-            conversation = self.service.create_conversation(title, int(user_id))
+            conversation = self.service.create_conversation(title, first_message, int(user_id))
             return jsonify(conversation.to_dict()), 201
         except Exception as e:
             return jsonify({"error": str(e)}), 400
