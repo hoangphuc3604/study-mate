@@ -1,11 +1,14 @@
 import { create } from "zustand";
 import { useToast } from "../use-toast";
 import axiosInstance from "@/config";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Message } from './useChat';
 
 export type Conversation = {
     id: number;
     title: string;
+    preview: string;
+    date: string;
 };
 
 export const useConversationStore = create<{
@@ -19,6 +22,14 @@ export const useConversationStore = create<{
 export const useConversation = () => {
     const { conversation, setConversation } = useConversationStore();
     const { toast } = useToast();
+
+    const { data: conversations, isLoading: isLoadingConversations } = useQuery({
+        queryKey: ["conversations"],
+        queryFn: async () => {
+            const response = await axiosInstance.get("/conversation/list");
+            return response.data ?? ([] as Conversation[]);
+        },
+    });
 
     const { isPending: isCreatingConversation, mutateAsync: createConversationAsync } = useMutation({
         mutationFn: async (data: { title?: string, first_message?: string }) => {
@@ -42,5 +53,5 @@ export const useConversation = () => {
         }
     });
 
-    return { createConversationAsync, isCreatingConversation, conversation, setConversation };
+    return { createConversationAsync, isCreatingConversation, conversation, setConversation, conversations, isLoadingConversations };
 };
