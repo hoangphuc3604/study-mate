@@ -10,6 +10,7 @@ export type User = {
     email: string,
     password: string,
     fullname: string,
+    created_at: string,
 }
 
 export const useUserStore = create<{
@@ -59,7 +60,7 @@ const useAuth = () => {
             const response = await axiosInstance.post("/auth/register", data);
             return response.data;
         },
-        onSuccess: (data) => {
+        onSuccess: () => {
             toast({
                 title: "Đăng ký thành công",
                 description: "Chào mừng bạn đến với chúng tôi!",
