@@ -12,7 +12,7 @@ import useAuth from "@/hooks/data/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 const ProfilePage = () => {
-  const { user, updateBasicInfo, updatingBasicInfo, updatePassword, updatingPassword, logout } = useAuth();
+  const { user, updateBasicInfo, updatingBasicInfo, updatePassword, updatingPassword } = useAuth();
   const { toast } = useToast();
 
   const [fullName, setFullName] = useState(user?.fullname || "");
@@ -40,7 +40,6 @@ const ProfilePage = () => {
     setCurrentPassword("");
     setNewPassword("");
     setConfirmNewPassword("");
-    logout();
   };
 
   return (
