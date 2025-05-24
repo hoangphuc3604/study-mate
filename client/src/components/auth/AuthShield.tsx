@@ -3,6 +3,7 @@ import { useUserStore } from "@/hooks/data/useAuth";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { loadUserFromLocalStorage } from "@/helpers/loadUser";
 interface AuthShieldProps {
   children: React.ReactNode;
   publicRoutes?: string[];
@@ -19,7 +20,7 @@ export default function AuthShield({
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { user, setUser } = useUserStore();
+  const { setUser } = useUserStore();
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
   const isTokenValid = (token: string | null) => {
@@ -48,7 +49,7 @@ export default function AuthShield({
 
       if (token) {
         const valid = isTokenValid(token);
-        console.log("Token valid:", valid);
+        setUser(loadUserFromLocalStorage());
 
         if (valid) {
           if (isPublic) {
