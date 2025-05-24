@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.auth.service import UserService
-from app.auth.dto import UserLoginDTO, UserRegisterDTO, UserInfoUpdateDTO
+from app.auth.dto import UserLoginDTO, UserRegisterDTO, UserInfoUpdateDTO, UserChangePasswordDTO
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 class UserController:
@@ -9,6 +9,7 @@ class UserController:
         self.login_dto = UserLoginDTO()
         self.register_dto = UserRegisterDTO()
         self.update_dto = UserInfoUpdateDTO()
+        self.change_password_dto = UserChangePasswordDTO()
         self.user_bp = Blueprint('user_bp', __name__)
 
         self._register_routes()
@@ -59,7 +60,7 @@ class UserController:
         """Update user password route handler."""
         try:
             data = request.json
-            dto = self.update_dto.load(data)
+            dto = self.change_password_dto.load(data)
             user_id = get_jwt_identity()
 
             user = self.service.update_user_password(user_id, dto)

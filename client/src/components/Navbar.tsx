@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Home, History, User, LogIn, UserPlus, Menu, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useConversation } from "@/hooks/data/useConversation";
+import useAuth from "@/hooks/data/useAuth";
 
 interface NavbarProps {
   isLoggedIn: boolean;
@@ -13,6 +14,7 @@ const Navbar = ({ isLoggedIn = false }: NavbarProps) => {
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { setConversation } = useConversation();
+  const { logout } = useAuth();
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -71,8 +73,10 @@ const Navbar = ({ isLoggedIn = false }: NavbarProps) => {
                       Hồ sơ
                     </Link>
                   </Button>
-                  <Button variant="outline" asChild>
-                    <Link to="/logout">Đăng xuất</Link>
+                  <Button variant="outline" asChild onClick={logout}>
+                    <Link to="/logout">
+                      Đăng xuất
+                    </Link>
                   </Button>
                 </>
               ) : (

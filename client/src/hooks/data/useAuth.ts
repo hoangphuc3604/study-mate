@@ -80,6 +80,70 @@ const useAuth = () => {
         },
     });
 
+    const { mutate: updateBasicInfo, isPending: updatingBasicInfo } = useMutation({
+        mutationFn: async (data: { fullname: string; email: string }) => {
+            const response = await axiosInstance.put("/auth/update/basic", data);
+            return response.data as User;
+        },
+        onSuccess: (data) => {
+            setUser(data);
+            localStorage.setItem("user", JSON.stringify(data));
+            toast({
+                title: "Cập nhật thông tin thành công",
+                description: "Thông tin của bạn đã được cập nhật.",
+                variant: "default",
+            });
+        },
+        onError: (error) => {
+            const axiosError = error as AxiosError<{ error: string }>;
+            const errorMessage =
+                axiosError.response?.data?.error || "Đã xảy ra lỗi khi cập nhật thông tin";
+
+            toast({
+                title: "Cập nhật thông tin thất bại",
+                description: errorMessage,
+                variant: "destructive",
+            });
+        },
+    });
+
+    const { mutate: updatePassword, isPending: updatingPassword } = useMutation({
+        mutationFn: async (data: { old_password: string; new_password: string; }) => {
+            const response = await axiosInstance.put("/auth/update/password", data);
+            return response.data;
+        },
+        onSuccess: () => {
+            toast({
+                title: "Cập nhật mật khẩu thành công",
+                description: "Mật khẩu của bạn đã được cập nhật.",
+                variant: "default",
+            });
+        },
+        onError: (error) => {
+            const axiosError = error as AxiosError<{ error: string }>;
+            const errorMessage =
+                axiosError.response?.data?.error || "Đã xảy ra lỗi khi cập nhật mật khẩu";
+
+            toast({
+                title: "Cập nhật mật khẩu thất bại",
+                description: errorMessage,
+                variant: "destructive",
+            });
+        },
+    });
+
+    const logout = () => {
+        setUser(undefined);
+        localStorage.removeItem("user");
+        localStorage.removeItem("token");
+        toast({
+            title: "Đăng xuất thành công",
+            description: "Bạn đã đăng xuất khỏi tài khoản của mình.",
+            variant: "default",
+        });
+        navigate("/login");
+    }
+
     return {
         user,
         setUser,
@@ -87,6 +151,11 @@ const useAuth = () => {
         isSigningIn,
         signUp,
         isSigningUp,
+        updateBasicInfo,
+        updatingBasicInfo,
+        updatePassword,
+        updatingPassword,
+        logout,
     };
 };
 
