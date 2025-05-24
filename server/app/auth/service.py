@@ -85,3 +85,48 @@ class UserService:
         db.session.commit()
 
         return new_user.id
+
+    def update_user(self, user_id: str, user_update_dto: dict) -> User:
+        """
+        Update user information.
+        
+        Args:
+            user_id (str): The ID of the user to update.
+            user_update_dto (dict): The new user information.
+        
+        Returns:
+            User: The updated user object.
+        """
+        user = User.query.get(user_id)
+        if not user:
+            raise ValueError("Người dùng không tồn tại")
+
+        for key, value in user_update_dto.items():
+            setattr(user, key, value)
+
+        db.session.commit()
+        return user
+
+    def update_user_password(self, user_id: str, update_password_dto: dict) -> User:
+        """
+        Update user password.
+        
+        Args:
+            user_id (str): The ID of the user to update.
+            old_password (str): The old password of the user.
+            new_password (str): The new password of the user.
+        
+        Returns:
+            User: The updated user object.
+        """
+        user = User.query.get(user_id)
+        if not user:
+            raise ValueError("Người dùng không tồn tại")
+
+        if not user.check_password(update_password_dto.get("old_password")):
+            raise ValueError("Mật khẩu cũ không đúng")
+
+        user.set_password(update_password_dto.get("new_password"))
+
+        db.session.commit()
+        return user

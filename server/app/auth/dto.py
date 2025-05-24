@@ -11,9 +11,8 @@ class UserRegisterDTO(Schema):
     password = fields.String(required=True, validate=Length(min=1), error_messages={"required": "Mật khẩu là bắt buộc."})
     fullname = fields.String(required=True, validate=Length(min=1), error_messages={"required": "Họ và tên là bắt buộc."})
 
-class UserUpdateDTO(Schema):
+class UserInfoUpdateDTO(Schema):
     email = fields.Email(required=False, validate=Length(min=1), error_messages={"required": "Email là bắt buộc."})
-    password = fields.String(required=False, validate=Length(min=1), error_messages={"required": "Mật khẩu là bắt buộc."})
     fullname = fields.String(required=False, validate=Length(min=1), error_messages={"required": "Họ và tên là bắt buộc."})
 
 class UserChangePasswordDTO(Schema):

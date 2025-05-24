@@ -14,6 +14,7 @@ class ConversationController:
         self.conversation_bp.add_url_rule('/', view_func=self.create_conversation, methods=['POST'])
         self.conversation_bp.add_url_rule('/<int:conversation_id>', view_func=self.get_messages, methods=['GET'])
         self.conversation_bp.add_url_rule('/list', view_func=self.get_conversations, methods=['GET'])
+        self.conversation_bp.add_url_rule('/<int:conversation_id>', view_func=self.delete_conversation, methods=['DELETE'])
 
     @jwt_required()
     def create_conversation(self):
@@ -44,6 +45,16 @@ class ConversationController:
             user_id = get_jwt_identity()
             conversations = self.service.get_conversations(user_id)
             return jsonify([conversation.to_dict() for conversation in conversations]), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
+        
+    @jwt_required()
+    def delete_conversation(self, conversation_id):
+        try:
+            user_id = get_jwt_identity()
+            success = self.service.delete_conversation(conversation_id, int(user_id))
+            if success:
+                return jsonify({"message": "Xóa cuộc hội thoại thành công"}), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 400
     

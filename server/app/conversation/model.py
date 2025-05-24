@@ -24,4 +24,5 @@ class Conversation(db.Model):
             'title': self.title,
             'preview': self.preview,
             'date': self.date.isoformat(),
+            'user_id': self.user_id,
         }

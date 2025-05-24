@@ -8,35 +8,39 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import useAuth from "@/hooks/data/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 const ProfilePage = () => {
-  const [fullName, setFullName] = useState("Nguyễn Văn A");
-  const [email, setEmail] = useState("nguyenvana@example.com");
-  const [isLoading, setIsLoading] = useState(false);
+  const { user, updateBasicInfo, updatingBasicInfo, updatePassword, updatingPassword, logout } = useAuth();
   const { toast } = useToast();
-  
+
+  const [fullName, setFullName] = useState(user?.fullname || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
+
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+    updateBasicInfo({ fullname: fullName, email });
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPassword !== confirmNewPassword) {
       toast({
-        title: "Đã lưu thay đổi",
-        description: "Thông tin cá nhân của bạn đã được cập nhật.",
-      });
-    } catch (error) {
-      toast({
-        title: "Lỗi",
-        description: "Không thể cập nhật thông tin. Vui lòng thử lại sau.",
+        title: "Mật khẩu mới không khớp",
+        description: "Vui lòng kiểm tra lại mật khẩu mới và xác nhận mật khẩu mới.",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
+      return;
     }
+    updatePassword({ old_password: currentPassword, new_password: newPassword });
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmNewPassword("");
+    logout();
   };
 
   return (
@@ -52,11 +56,11 @@ const ProfilePage = () => {
               <CardHeader className="flex flex-col items-center">
                 <div className="w-24 h-24 rounded-full bg-studymate-100 flex items-center justify-center mb-4">
                   <span className="text-3xl font-semibold text-studymate-500">
-                    {fullName.split(" ").pop()?.[0] || "A"}
+                    {user?.fullname.split(" ").pop()?.[0] || "A"}
                   </span>
                 </div>
-                <CardTitle className="text-xl">{fullName}</CardTitle>
-                <p className="text-sm text-muted-foreground">{email}</p>
+                <CardTitle className="text-xl">{user?.fullname}</CardTitle>
+                <p className="text-sm text-muted-foreground">{user?.email}</p>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -119,9 +123,9 @@ const ProfilePage = () => {
                         <Button 
                           type="submit" 
                           className="bg-studymate-400 hover:bg-studymate-500"
-                          disabled={isLoading}
+                          disabled={updatingBasicInfo}
                         >
-                          {isLoading ? (
+                          {updatingBasicInfo ? (
                             <div className="flex items-center">
                               <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                               <span>Đang lưu...</span>
@@ -183,38 +187,57 @@ const ProfilePage = () => {
                     <CardTitle>Bảo mật</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="current-password">Mật khẩu hiện tại</Label>
-                        <Input
-                          id="current-password"
-                          type="password"
-                          placeholder="••••••••"
-                        />
+                    <form onSubmit={handleChangePassword}>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="current-password">Mật khẩu hiện tại</Label>
+                          <Input
+                            id="current-password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={currentPassword}
+                            onChange={(e) => setCurrentPassword(e.target.value)}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="new-password">Mật khẩu mới</Label>
+                          <Input
+                            id="new-password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="confirm-new-password">Xác nhận mật khẩu mới</Label>
+                          <Input
+                            id="confirm-new-password"
+                            type="password"
+                            placeholder="••••••••"
+                            value={confirmNewPassword}
+                            onChange={(e) => setConfirmNewPassword(e.target.value)}
+                          />
+                        </div>
+                        
+                        <Button 
+                          className="bg-studymate-400 hover:bg-studymate-500"
+                          type="submit"
+                          disabled={updatingPassword}
+                        >
+                          {updatingPassword ? (
+                            <div className="flex items-center">
+                              <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                              <span>Đang đổi...</span>
+                            </div>
+                          ) : (
+                            "Đổi mật khẩu"
+                          )}
+                        </Button>
                       </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="new-password">Mật khẩu mới</Label>
-                        <Input
-                          id="new-password"
-                          type="password"
-                          placeholder="••••••••"
-                        />
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="confirm-new-password">Xác nhận mật khẩu mới</Label>
-                        <Input
-                          id="confirm-new-password"
-                          type="password"
-                          placeholder="••••••••"
-                        />
-                      </div>
-                      
-                      <Button className="bg-studymate-400 hover:bg-studymate-500">
-                        Đổi mật khẩu
-                      </Button>
-                    </div>
+                    </form>
                   </CardContent>
                 </Card>
               </TabsContent>

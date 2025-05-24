@@ -42,8 +42,8 @@ const Footer = () => {
           <div>
             <h3 className="font-bold text-lg mb-4">Liên hệ</h3>
             <ul className="space-y-2 text-sm">
-              <li className="text-muted-foreground">Email: contact@studymate.com</li>
-              <li className="text-muted-foreground">Điện thoại: +84 123 456 789</li>
+              <li className="text-muted-foreground">Email: nvhphuc364@gmail.com</li>
+              <li className="text-muted-foreground">Điện thoại: +84 869 201 610</li>
             </ul>
           </div>
         </div>

@@ -13,7 +13,7 @@ import useChat from "@/hooks/data/useChat";
 const HistoryPage = () => {
   const { conversations } = useConversation();
   const [searchQuery, setSearchQuery] = useState("");
-  const { conversation, setConversation } = useConversation();
+  const { conversation, setConversation, deleteConversation } = useConversation();
   const { messages } = useChat({ conversation_id: conversation?.id || 0 });
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -24,7 +24,7 @@ const HistoryPage = () => {
   );
   
   const deleteSession = (id: number) => {
-    
+    deleteConversation(id);
   };
 
   useEffect(() => {
