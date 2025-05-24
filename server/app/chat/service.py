@@ -1,11 +1,10 @@
 import os
 from app.vector.service import VectorService
 from langchain.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
 from app.message.service import MessageService
 from app.conversation.service import ConversationService
+from app.llm.llm import llm
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 USER_TYPE = "user"
 BOT_TYPE = "bot"
 
@@ -46,21 +45,16 @@ class ChatService:
         return cls._instance
     
     def __init__(self):
-        self.llm = ChatOpenAI(
-            openai_api_key=OPENAI_API_KEY,
-            temperature=0.3,
-            model="gpt-3.5-turbo",
-            max_tokens=2000
-        )
+        self.llm = llm
         self.vector_service = VectorService()
         self.message_service = MessageService()
         self.conversation_service = ConversationService()
 
     def handle_user_message(self, conversation_id: int, message: str):
         """Handle user message and generate a response."""
-        message_res = self.message_service.create_message(message, conversation_id, USER_TYPE)
+        self.message_service.create_message(message, conversation_id, USER_TYPE)
         self.vector_service.add_message(conversation_id, USER_TYPE, message)
-        self.conversation_service.update_last_message_id(conversation_id, message_res.to_dict()["id"])
+        self.conversation_service.update_preview(conversation_id, message)
 
         context_list = self.vector_service.get_conversation_context(conversation_id)
         context = "\n".join(context_list)

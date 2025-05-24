@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,116 +6,33 @@ import { Input } from "@/components/ui/input";
 import { Search, Calendar, Trash2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-
-interface ChatSession {
-  id: number;
-  title: string;
-  preview: string;
-  date: string;
-  messages: {
-    id: number;
-    text: string;
-    sender: "user" | "bot";
-    timestamp: string;
-  }[];
-}
-
-const sampleData: ChatSession[] = [
-  {
-    id: 1,
-    title: "Giải phương trình bậc hai",
-    preview: "Làm thế nào để giải phương trình ax² + bx + c = 0?",
-    date: "2023-05-06T14:23:00",
-    messages: [
-      {
-        id: 1,
-        text: "Làm thế nào để giải phương trình ax² + bx + c = 0?",
-        sender: "user",
-        timestamp: "2023-05-06T14:23:00",
-      },
-      {
-        id: 2,
-        text: "Để giải phương trình bậc hai ax² + bx + c = 0, bạn cần thực hiện các bước sau...",
-        sender: "bot",
-        timestamp: "2023-05-06T14:23:30",
-      },
-    ],
-  },
-  {
-    id: 2,
-    title: "Học từ vựng tiếng Anh",
-    preview: "Có thể giúp tôi học một số từ vựng tiếng Anh về chủ đề công nghệ không?",
-    date: "2023-05-05T10:15:00",
-    messages: [
-      {
-        id: 1,
-        text: "Có thể giúp tôi học một số từ vựng tiếng Anh về chủ đề công nghệ không?",
-        sender: "user",
-        timestamp: "2023-05-05T10:15:00",
-      },
-      {
-        id: 2,
-        text: "Dưới đây là một số từ vựng tiếng Anh về công nghệ...",
-        sender: "bot",
-        timestamp: "2023-05-05T10:15:45",
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: "Giải thích hiện tượng hiệu ứng nhà kính",
-    preview: "Bạn có thể giải thích về hiệu ứng nhà kính không?",
-    date: "2023-05-04T16:30:00",
-    messages: [
-      {
-        id: 1,
-        text: "Bạn có thể giải thích về hiệu ứng nhà kính không?",
-        sender: "user",
-        timestamp: "2023-05-04T16:30:00",
-      },
-      {
-        id: 2,
-        text: "Hiệu ứng nhà kính là hiện tượng giữ nhiệt trong khí quyển Trái Đất...",
-        sender: "bot",
-        timestamp: "2023-05-04T16:30:45",
-      },
-    ],
-  },
-];
+import { formatDate, formatTimestamp } from "@/helpers/formatTime";
+import { Conversation, useConversation } from "@/hooks/data/useConversation";
+import useChat from "@/hooks/data/useChat";
 
 const HistoryPage = () => {
-  const [chatSessions, setChatSessions] = useState<ChatSession[]>(sampleData);
+  const { conversations } = useConversation();
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedChat, setSelectedChat] = useState<ChatSession | null>(null);
-  
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("vi-VN", {
-      day: "numeric",
-      month: "numeric",
-      year: "numeric",
-    });
-  };
-  
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString("vi-VN", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-  
-  const filteredSessions = chatSessions.filter((session) => 
-    session.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    session.preview.toLowerCase().includes(searchQuery.toLowerCase())
+  const { conversation, setConversation } = useConversation();
+  const { messages } = useChat({ conversation_id: conversation?.id || 0 });
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const filteredSessions = conversations?.filter((conversation: Conversation) =>
+    conversation.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    conversation.preview.toLowerCase().includes(searchQuery.toLowerCase())
   );
   
   const deleteSession = (id: number) => {
-    setChatSessions(chatSessions.filter(session => session.id !== id));
-    if (selectedChat && selectedChat.id === id) {
-      setSelectedChat(null);
-    }
+    
   };
+
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+    }
+  }, [messages]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -139,16 +55,15 @@ const HistoryPage = () => {
                 />
               </div>
             </div>
-            
-            <div className="space-y-3">
-              {filteredSessions.length > 0 ? (
-                filteredSessions.map((session) => (
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+              {filteredSessions?.length > 0 ? (
+                filteredSessions?.map((session) => (
                   <Card 
                     key={session.id} 
                     className={`cursor-pointer hover:bg-secondary/50 transition-colors ${
-                      selectedChat?.id === session.id ? "border-studymate-400" : ""
+                      conversation?.id === session.id ? "border-studymate-400" : ""
                     }`}
-                    onClick={() => setSelectedChat(session)}
+                    onClick={() => setConversation(session)}
                   >
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start">
@@ -186,54 +101,54 @@ const HistoryPage = () => {
               )}
             </div>
           </div>
-          
           {/* Right side - Chat details */}
           <div className="w-full md:w-2/3">
-            {selectedChat ? (
+            {conversation ? (
               <Card>
                 <CardHeader className="border-b">
                   <div className="flex justify-between items-center">
-                    <CardTitle>{selectedChat.title}</CardTitle>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <CardTitle>{conversation.title}</CardTitle>
+                    <Button
+                      variant="outline"
+                      size="sm"
                       asChild
                     >
-                      <Link to={`/chat?id=${selectedChat.id}`}>
+                      <Link to={`/chat`}>
                         Tiếp tục hội thoại
                       </Link>
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent className="p-4">
+                <CardContent ref={messagesContainerRef} className="p-4 max-h-[60vh] overflow-y-auto">
                   <div className="space-y-6">
-                    {selectedChat.messages.map((msg) => (
+                    {messages?.map((msg) => (
                       <div
                         key={msg.id}
                         className={`flex ${
-                          msg.sender === "user" ? "justify-end" : "justify-start"
+                          msg.type === "user" ? "justify-end" : "justify-start"
                         }`}
                       >
                         <div>
                           <div
                             className={
-                              msg.sender === "user"
+                              msg.type === "user"
                                 ? "chat-bubble-user"
                                 : "chat-bubble-bot"
                             }
                           >
-                            {msg.text}
+                            {msg.content}
                           </div>
                           <div
                             className={`text-xs text-muted-foreground mt-1 ${
-                              msg.sender === "user" ? "text-right" : "text-left"
+                              msg.type === "user" ? "text-right" : "text-left"
                             }`}
                           >
-                            {formatTime(msg.timestamp)}
+                            {formatTimestamp(msg.timestamp)}
                           </div>
                         </div>
                       </div>
                     ))}
+                    <div ref={messagesEndRef} />
                   </div>
                 </CardContent>
               </Card>

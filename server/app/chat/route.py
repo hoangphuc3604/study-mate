@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 from app.chat.dto import MessageDTO
 from app.chat.service import ChatService
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 class ChatController:
     def __init__(self):
@@ -12,6 +13,7 @@ class ChatController:
     def _register_routes(self):
         self.chat_bp.add_url_rule('/', view_func=self.create_chat, methods=['POST'])
 
+    @jwt_required()
     def create_chat(self):
         try:
             data = request.json

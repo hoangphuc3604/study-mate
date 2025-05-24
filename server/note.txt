@@ -17,3 +17,6 @@ date
 time
 conversation_id
 type: enum["bot", "user"]
+
+Tạo cuộc trò chuyện mới => Trong body kèm câu hỏi đầu tiên => Gửi cho AI gen ra tiêu đề
+=> Nếu không có thì để tiêu đề mà người ta gửi 
