@@ -63,3 +63,17 @@ class ConversationService:
 
     def get_conversations(self, user_id: int):
         return Conversation.query.filter_by(user_id=user_id).all()
+
+    def delete_conversation(self, conversation_id: int, user_id: int):
+        """Delete a conversation and its messages."""
+        conversation = Conversation.query.get({"id": conversation_id})
+        if conversation and conversation.user_id != user_id:
+            raise Exception("Bạn không có quyền xóa cuộc hội thoại này.")
+        if conversation:
+            for message in conversation.messages:
+                db.session.delete(message)
+            db.session.delete(conversation)
+            db.session.commit()
+            return True
+        else:
+            raise Exception("Cuộc hội thoại không tồn tại.")
