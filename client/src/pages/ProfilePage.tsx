@@ -10,9 +10,10 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import useAuth from "@/hooks/data/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { formatDate } from '../helpers/formatTime';
 
 const ProfilePage = () => {
-  const { user, updateBasicInfo, updatingBasicInfo, updatePassword, updatingPassword, logout } = useAuth();
+  const { user, updateBasicInfo, updatingBasicInfo, updatePassword, updatingPassword } = useAuth();
   const { toast } = useToast();
 
   const [fullName, setFullName] = useState(user?.fullname || "");
@@ -40,7 +41,6 @@ const ProfilePage = () => {
     setCurrentPassword("");
     setNewPassword("");
     setConfirmNewPassword("");
-    logout();
   };
 
   return (
@@ -77,7 +77,7 @@ const ProfilePage = () => {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">Ngày tham gia</p>
-                      <p className="text-sm text-muted-foreground">06/05/2023</p>
+                      <p className="text-sm text-muted-foreground">{formatDate(user?.created_at) || "Chưa có thông tin"}</p>
                     </div>
                   </div>
                 </div>

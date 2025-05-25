@@ -10,6 +10,7 @@ export type User = {
     email: string,
     password: string,
     fullname: string,
+    created_at: string,
 }
 
 export const useUserStore = create<{
@@ -59,7 +60,7 @@ const useAuth = () => {
             const response = await axiosInstance.post("/auth/register", data);
             return response.data;
         },
-        onSuccess: (data) => {
+        onSuccess: () => {
             toast({
                 title: "Đăng ký thành công",
                 description: "Chào mừng bạn đến với chúng tôi!",
@@ -118,6 +119,7 @@ const useAuth = () => {
                 description: "Mật khẩu của bạn đã được cập nhật.",
                 variant: "default",
             });
+            logout(false);
         },
         onError: (error) => {
             const axiosError = error as AxiosError<{ error: string }>;
@@ -132,15 +134,17 @@ const useAuth = () => {
         },
     });
 
-    const logout = () => {
+    const logout = (isShowToast: boolean = true) => {
         setUser(undefined);
         localStorage.removeItem("user");
         localStorage.removeItem("token");
-        toast({
-            title: "Đăng xuất thành công",
-            description: "Bạn đã đăng xuất khỏi tài khoản của mình.",
-            variant: "default",
-        });
+        if (isShowToast) {
+            toast({
+                title: "Đăng xuất thành công",
+                description: "Bạn đã đăng xuất khỏi tài khoản của mình.",
+                variant: "default",
+            });
+        }
         navigate("/login");
     }
 
